@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -------- Design tokens (light / dark) -------- */
+:root {
+  --ink: 17 24 39;          /* slate-900 */
+  --mute: 100 116 139;      /* slate-500 */
+  --surface: 255 255 255;
+  --surface-2: 248 250 252; /* slate-50 */
+  --border: 226 232 240;    /* slate-200 */
+  --accent: 29 83 230;      /* brand-600 */
+  --accent-ink: 255 255 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ink: 241 245 249;
+    --mute: 148 163 184;
+    --surface: 15 23 42;
+    --surface-2: 2 6 23;
+    --border: 51 65 85;
+    --accent: 140 174 255;
+    --accent-ink: 15 23 42;
+  }
+}
+
+:root[data-theme='dark'] {
+  --ink: 241 245 249;
+  --mute: 148 163 184;
+  --surface: 15 23 42;
+  --surface-2: 2 6 23;
+  --border: 51 65 85;
+  --accent: 140 174 255;
+  --accent-ink: 15 23 42;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-surface text-ink font-sans antialiased;
+    min-height: 100vh;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface rounded;
+  }
+  h1 {
+    @apply text-3xl md:text-4xl font-bold tracking-tight;
+  }
+  h2 {
+    @apply text-2xl md:text-3xl font-semibold tracking-tight;
+  }
+  h3 {
+    @apply text-xl md:text-2xl font-semibold;
+  }
+  a {
+    @apply underline-offset-4;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-content px-4 sm:px-6 lg:px-8;
+  }
+  .prose-nap h1 {
+    @apply mt-0 mb-4;
+  }
+  .prose-nap h2 {
+    @apply mt-8 mb-3;
+  }
+  .prose-nap h3 {
+    @apply mt-6 mb-2;
+  }
+  .prose-nap p {
+    @apply my-3 leading-relaxed text-ink;
+  }
+  .prose-nap ul {
+    @apply list-disc pl-6 my-3 space-y-1;
+  }
+  .prose-nap ol {
+    @apply list-decimal pl-6 my-3 space-y-1;
+  }
+  .prose-nap a {
+    @apply text-accent underline;
+  }
+  .prose-nap code {
+    @apply bg-surface-2 px-1 py-0.5 rounded text-sm;
+  }
+  .prose-nap blockquote {
+    @apply border-l-4 border-border pl-4 my-4 italic text-mute;
+  }
+}
+
+/* Skip link — fica visível só no foco */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  padding: 0.75rem 1rem;
+  background: rgb(var(--accent));
+  color: rgb(var(--accent-ink));
+  z-index: 100;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+}
