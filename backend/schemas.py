@@ -190,7 +190,6 @@ class ContactMessageRead(CamelModel):
     topic: str
     message: str
     is_anonymous: bool
-    email_sent: bool
     handled_at: datetime | None
     created_at: datetime
 

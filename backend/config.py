@@ -30,11 +30,6 @@ class Settings(BaseSettings):
     ADMIN_SEED_PASSWORD: str = "nap-admin-2026"
     ADMIN_SEED_NAME: str = "Admin NAP"
 
-    # Email (Resend)
-    RESEND_API_KEY: str = ""
-    CONTACT_INBOX: str = "nap@impacta.edu.br"
-    CONTACT_FROM: str = "NAP Impacta <nap@impacta.edu.br>"
-
     # URLs
     SITE_URL: str = "http://localhost:5173"
     API_BASE_URL: str = "http://localhost:8000"

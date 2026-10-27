@@ -18,7 +18,7 @@ git clone <repo> nap-impacta && cd nap-impacta
 
 # 2. Variáveis de ambiente
 cp .env.example .env
-# edite .env com os valores locais (JWT_SECRET, RESEND_API_KEY opcional, etc)
+# edite .env com os valores locais (JWT_SECRET, etc)
 
 # 3. Backend
 python -m venv .venv
@@ -51,8 +51,7 @@ nap-impacta/
 │   ├── models.py         # SQLAlchemy models
 │   ├── schemas.py        # Pydantic v2 schemas
 │   ├── seed.py           # bootstrap de dados
-│   ├── routers/          # endpoints por domínio
-│   └── services/         # integrações (email via Resend)
+│   └── routers/          # endpoints por domínio
 ├── frontend/             # React + Vite + Tailwind
 │   ├── src/
 │   │   ├── pages/        # rotas públicas + /admin

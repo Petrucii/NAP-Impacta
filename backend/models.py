@@ -103,7 +103,6 @@ class ContactMessage(Base, TimestampMixin):
     topic: Mapped[str] = mapped_column(String(80), nullable=False)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     is_anonymous: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    email_sent: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     handled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     handled_by_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("admin_user.id"), nullable=True

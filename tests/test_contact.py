@@ -1,12 +1,7 @@
 from backend.models import ContactMessage
 
 
-def test_contact_submit(client, db_session, monkeypatch):
-    async def _fake_send(**kwargs):
-        return False
-
-    monkeypatch.setattr("backend.routers.contact.send_contact_email", _fake_send)
-
+def test_contact_submit(client, db_session):
     r = client.post(
         "/api/contact",
         json={
@@ -40,12 +35,7 @@ def test_contact_validation(client):
     assert r.status_code == 422
 
 
-def test_contact_honeypot(client, monkeypatch):
-    async def _fake_send(**kwargs):
-        return False
-
-    monkeypatch.setattr("backend.routers.contact.send_contact_email", _fake_send)
-
+def test_contact_honeypot(client):
     r = client.post(
         "/api/contact",
         json={

@@ -49,7 +49,6 @@ export type ContactMessage = {
   topic: string;
   message: string;
   isAnonymous: boolean;
-  emailSent: boolean;
   handledAt: string | null;
   createdAt: string;
 };

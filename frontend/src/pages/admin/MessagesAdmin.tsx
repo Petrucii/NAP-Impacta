@@ -82,11 +82,6 @@ export default function MessagesAdmin() {
                     {new Date(m.createdAt).toLocaleString('pt-BR')}
                     {' · '}
                     {m.email}
-                    {!m.emailSent && (
-                      <span className="ml-2 text-amber-600">
-                        (e-mail não entregue — contate manualmente)
-                      </span>
-                    )}
                   </p>
                 </button>
               </Card>
