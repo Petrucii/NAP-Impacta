@@ -9,11 +9,11 @@ settings = get_settings()
 
 # Para SQLite, precisamos de check_same_thread=False
 _connect_args = (
-    {"check_same_thread": False} if settings.DATABASE_URL.startswith("sqlite") else {}
+    {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
 )
 
 engine = create_engine(
-    settings.DATABASE_URL,
+    settings.database_url,
     connect_args=_connect_args,
     pool_pre_ping=True,
     future=True,

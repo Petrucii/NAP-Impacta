@@ -40,6 +40,14 @@ class Settings(BaseSettings):
     )
 
     @property
+    def database_url(self) -> str:
+        url = self.DATABASE_URL.strip()
+        for prefix in ("postgres://", "postgresql://"):
+            if url.startswith(prefix):
+                return "postgresql+psycopg://" + url[len(prefix):]
+        return url
+
+    @property
     def is_production(self) -> bool:
         return self.ENV == "production"
 

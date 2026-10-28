@@ -59,11 +59,26 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup() -> None:
-    # Em prod/preview com Postgres, as migrations rodam via Alembic.
-    # Em dev com SQLite ainda inicializa as tabelas.
-    if settings.DATABASE_URL.startswith("sqlite"):
-        init_db()
-        logger.info("DB SQLite inicializado em %s", settings.DATABASE_URL)
+    if settings.is_production:
+        if settings.JWT_SECRET == "troque-este-segredo" or len(settings.JWT_SECRET) < 32:
+            raise RuntimeError("Defina JWT_SECRET (>= 32 caracteres) em produção")
+        if settings.ADMIN_SEED_PASSWORD == "nap-admin-2026":
+            raise RuntimeError("Defina ADMIN_SEED_PASSWORD em produção")
+
+    # create_all é idempotente: cria só o que falta (sem Alembic no MVP).
+    init_db()
+
+    # Primeira subida: sem nenhum admin, popula admin + conteúdos iniciais.
+    from backend.database import SessionLocal
+    from backend.models import AdminUser
+
+    with SessionLocal() as db:
+        has_admin = db.query(AdminUser).first() is not None
+    if not has_admin:
+        from backend.seed import run as run_seed
+
+        run_seed()
+        logger.info("Seed inicial executado")
 
 
 @app.exception_handler(RequestValidationError)
