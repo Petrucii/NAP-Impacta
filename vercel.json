@@ -4,14 +4,8 @@
   "outputDirectory": "frontend/dist",
   "installCommand": "echo 'skip root install'",
   "framework": null,
-  "functions": {
-    "api/index.py": {
-      "runtime": "@vercel/python@4.3.0",
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.py" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
