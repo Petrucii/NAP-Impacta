@@ -30,9 +30,7 @@ def test_engine():
 
 @pytest.fixture()
 def db_session(test_engine):
-    TestingSessionLocal = sessionmaker(
-        bind=test_engine, autoflush=False, autocommit=False
-    )
+    TestingSessionLocal = sessionmaker(bind=test_engine, autoflush=False, autocommit=False)
     session = TestingSessionLocal()
     try:
         yield session
@@ -44,9 +42,7 @@ def db_session(test_engine):
 def client(test_engine, db_session):
     from backend.main import app
 
-    TestingSessionLocal = sessionmaker(
-        bind=test_engine, autoflush=False, autocommit=False
-    )
+    TestingSessionLocal = sessionmaker(bind=test_engine, autoflush=False, autocommit=False)
 
     def _override_get_db():
         s = TestingSessionLocal()

@@ -3,7 +3,7 @@
 Rode:  python -m backend.seed
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from backend.config import get_settings
 from backend.database import SessionLocal, init_db
@@ -69,7 +69,7 @@ POSTS_SEED = [
         "slug": "ansiedade-pre-apresentacao",
         "title": "Ansiedade antes de apresentar trabalho: 3 técnicas que ajudam",
         "summary": "Respiração, ensaio e visualização — como funcionam e por que servem.",
-        "body_md": "## Respiração 4-7-8\n\nInspire em 4 tempos, segure em 7, expire em 8. Repetir 3 vezes acalma o sistema nervoso autônomo.\n\n## Ensaio real, não mental\n\nFale a apresentação em voz alta pelo menos duas vezes. O cérebro distingue ensaio real de \"imaginar que falou\".\n\n## Visualize o começo, não o fim\n\nImagine só os 30 primeiros segundos: entrar, cumprimentar, dizer o nome. O resto flui.",
+        "body_md": '## Respiração 4-7-8\n\nInspire em 4 tempos, segure em 7, expire em 8. Repetir 3 vezes acalma o sistema nervoso autônomo.\n\n## Ensaio real, não mental\n\nFale a apresentação em voz alta pelo menos duas vezes. O cérebro distingue ensaio real de "imaginar que falou".\n\n## Visualize o começo, não o fim\n\nImagine só os 30 primeiros segundos: entrar, cumprimentar, dizer o nome. O resto flui.',
         "category": "educativo",
         "author": "Equipe NAP",
     },
@@ -87,7 +87,7 @@ POSTS_SEED = [
 FAQ_SEED = [
     {
         "question": "Como marco um atendimento com o NAP?",
-        "answer_md": "Pelo formulário em [/contato](/contato), escolhendo \"Agendar atendimento\" como assunto. Retornamos em até 2 dias úteis.",
+        "answer_md": 'Pelo formulário em [/contato](/contato), escolhendo "Agendar atendimento" como assunto. Retornamos em até 2 dias úteis.',
         "category": "atendimento",
         "order_index": 1,
     },
@@ -145,7 +145,9 @@ def run() -> None:
     db = SessionLocal()
     try:
         # Admin
-        existing = db.query(AdminUser).filter(AdminUser.email == settings.ADMIN_SEED_EMAIL.lower()).first()
+        existing = (
+            db.query(AdminUser).filter(AdminUser.email == settings.ADMIN_SEED_EMAIL.lower()).first()
+        )
         if not existing:
             admin = AdminUser(
                 email=settings.ADMIN_SEED_EMAIL.lower(),
@@ -167,7 +169,7 @@ def run() -> None:
         # Posts (publicados)
         for item in POSTS_SEED:
             if not db.query(Post).filter(Post.slug == item["slug"]).first():
-                db.add(Post(**item, published_at=datetime.now(timezone.utc)))
+                db.add(Post(**item, published_at=datetime.now(UTC)))
                 print(f"[seed] post: {item['slug']}")
 
         # FAQ

@@ -1,6 +1,6 @@
 """Login admin + /me."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -20,7 +20,7 @@ def login(payload: LoginRequest, db: DB) -> TokenResponse:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail={"code": "invalid_credentials", "message": "E-mail ou senha inválidos"},
         )
-    user.last_login_at = datetime.now(timezone.utc)
+    user.last_login_at = datetime.now(UTC)
     db.commit()
     token, exp = create_access_token(sub=user.id, role=user.role)
     return TokenResponse(access_token=token, expires_in=exp)

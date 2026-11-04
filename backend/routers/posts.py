@@ -1,6 +1,6 @@
 """Conteúdos / orientações — endpoints públicos."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -18,7 +18,7 @@ def list_posts(
     limit: int = 12,
     offset: int = 0,
 ) -> PostList:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     q = (
         db.query(Post)
         .filter(Post.archived_at.is_(None))
@@ -40,7 +40,7 @@ def list_posts(
 
 @router.get("/{slug}", response_model=PostRead)
 def get_post(slug: str, db: DB) -> PostRead:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     post = (
         db.query(Post)
         .filter(

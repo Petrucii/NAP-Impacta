@@ -1,6 +1,6 @@
 """Conteúdos institucionais e highlights da Home."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter
 
@@ -30,7 +30,7 @@ DEFAULT_ABOUT = (
 
 @router.get("/home-highlights", response_model=HomeHighlights)
 def home_highlights(db: DB) -> HomeHighlights:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     services = (
         db.query(Service)
