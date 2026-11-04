@@ -1,6 +1,6 @@
 """Rotas admin — todas protegidas por JWT (require_admin)."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, HTTPException, Response, status
 
@@ -39,7 +39,7 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 # ---------- Summary ----------
 @router.get("/summary", response_model=AdminSummary)
 def summary(db: DB, _: CurrentAdmin) -> AdminSummary:
-    week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+    week_ago = datetime.now(UTC) - timedelta(days=7)
     totals = AdminTotals(
         services=db.query(Service).filter(Service.archived_at.is_(None)).count(),
         posts=db.query(Post).filter(Post.archived_at.is_(None)).count(),
@@ -78,7 +78,9 @@ def admin_update_service(
 ) -> ServiceRead:
     svc = db.query(Service).filter(Service.id == service_id).first()
     if not svc:
-        raise HTTPException(status_code=404, detail={"code": "not_found", "message": "Serviço não encontrado"})
+        raise HTTPException(
+            status_code=404, detail={"code": "not_found", "message": "Serviço não encontrado"}
+        )
     for k, v in payload.model_dump(exclude_unset=True).items():
         setattr(svc, k, v)
     db.commit()
@@ -90,8 +92,10 @@ def admin_update_service(
 def admin_delete_service(service_id: str, db: DB, _: CurrentAdmin) -> Response:
     svc = db.query(Service).filter(Service.id == service_id).first()
     if not svc:
-        raise HTTPException(status_code=404, detail={"code": "not_found", "message": "Serviço não encontrado"})
-    svc.archived_at = datetime.now(timezone.utc)
+        raise HTTPException(
+            status_code=404, detail={"code": "not_found", "message": "Serviço não encontrado"}
+        )
+    svc.archived_at = datetime.now(UTC)
     svc.published = False
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -107,8 +111,10 @@ def admin_list_posts(db: DB, _: CurrentAdmin) -> list[PostRead]:
 @router.post("/posts", response_model=PostRead, status_code=status.HTTP_201_CREATED)
 def admin_create_post(payload: PostCreate, db: DB, _: CurrentAdmin) -> PostRead:
     if db.query(Post).filter(Post.slug == payload.slug).first():
-        raise HTTPException(status_code=400, detail={"code": "slug_taken", "message": "Slug já existe"})
-    post = Post(**payload.model_dump(), published_at=datetime.now(timezone.utc))
+        raise HTTPException(
+            status_code=400, detail={"code": "slug_taken", "message": "Slug já existe"}
+        )
+    post = Post(**payload.model_dump(), published_at=datetime.now(UTC))
     db.add(post)
     db.commit()
     db.refresh(post)
@@ -119,13 +125,15 @@ def admin_create_post(payload: PostCreate, db: DB, _: CurrentAdmin) -> PostRead:
 def admin_update_post(post_id: str, payload: PostUpdate, db: DB, _: CurrentAdmin) -> PostRead:
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail={"code": "not_found", "message": "Conteúdo não encontrado"})
+        raise HTTPException(
+            status_code=404, detail={"code": "not_found", "message": "Conteúdo não encontrado"}
+        )
     data = payload.model_dump(exclude_unset=True)
     publish = data.pop("publish", None)
     for k, v in data.items():
         setattr(post, k, v)
     if publish is True:
-        post.published_at = datetime.now(timezone.utc)
+        post.published_at = datetime.now(UTC)
     elif publish is False:
         post.published_at = None
     db.commit()
@@ -137,8 +145,10 @@ def admin_update_post(post_id: str, payload: PostUpdate, db: DB, _: CurrentAdmin
 def admin_delete_post(post_id: str, db: DB, _: CurrentAdmin) -> Response:
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail={"code": "not_found", "message": "Conteúdo não encontrado"})
-    post.archived_at = datetime.now(timezone.utc)
+        raise HTTPException(
+            status_code=404, detail={"code": "not_found", "message": "Conteúdo não encontrado"}
+        )
+    post.archived_at = datetime.now(UTC)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -163,7 +173,9 @@ def admin_create_faq(payload: FaqItemCreate, db: DB, _: CurrentAdmin) -> FaqItem
 def admin_update_faq(item_id: str, payload: FaqItemUpdate, db: DB, _: CurrentAdmin) -> FaqItemRead:
     item = db.query(FaqItem).filter(FaqItem.id == item_id).first()
     if not item:
-        raise HTTPException(status_code=404, detail={"code": "not_found", "message": "FAQ não encontrado"})
+        raise HTTPException(
+            status_code=404, detail={"code": "not_found", "message": "FAQ não encontrado"}
+        )
     for k, v in payload.model_dump(exclude_unset=True).items():
         setattr(item, k, v)
     db.commit()
@@ -175,7 +187,9 @@ def admin_update_faq(item_id: str, payload: FaqItemUpdate, db: DB, _: CurrentAdm
 def admin_delete_faq(item_id: str, db: DB, _: CurrentAdmin) -> Response:
     item = db.query(FaqItem).filter(FaqItem.id == item_id).first()
     if not item:
-        raise HTTPException(status_code=404, detail={"code": "not_found", "message": "FAQ não encontrado"})
+        raise HTTPException(
+            status_code=404, detail={"code": "not_found", "message": "FAQ não encontrado"}
+        )
     db.delete(item)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -203,7 +217,9 @@ def admin_update_team(
 ) -> TeamMemberRead:
     m = db.query(TeamMember).filter(TeamMember.id == member_id).first()
     if not m:
-        raise HTTPException(status_code=404, detail={"code": "not_found", "message": "Membro não encontrado"})
+        raise HTTPException(
+            status_code=404, detail={"code": "not_found", "message": "Membro não encontrado"}
+        )
     for k, v in payload.model_dump(exclude_unset=True).items():
         setattr(m, k, v)
     db.commit()
@@ -215,7 +231,9 @@ def admin_update_team(
 def admin_delete_team(member_id: str, db: DB, _: CurrentAdmin) -> Response:
     m = db.query(TeamMember).filter(TeamMember.id == member_id).first()
     if not m:
-        raise HTTPException(status_code=404, detail={"code": "not_found", "message": "Membro não encontrado"})
+        raise HTTPException(
+            status_code=404, detail={"code": "not_found", "message": "Membro não encontrado"}
+        )
     db.delete(m)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -256,7 +274,7 @@ def admin_handle_message(
             status_code=404, detail={"code": "not_found", "message": "Mensagem não encontrada"}
         )
     if payload.handled:
-        msg.handled_at = datetime.now(timezone.utc)
+        msg.handled_at = datetime.now(UTC)
         msg.handled_by_id = user.id
     else:
         msg.handled_at = None

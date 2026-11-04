@@ -1,6 +1,6 @@
 """Hash de senha (bcrypt) e JWT HS256."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from jose import JWTError, jwt
@@ -26,7 +26,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 def create_access_token(sub: str, role: str = "editor") -> tuple[str, int]:
     """Retorna (token, expires_in_seconds)."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     exp_delta = timedelta(minutes=settings.JWT_EXPIRES_MIN)
     exp = now + exp_delta
     payload: dict[str, Any] = {

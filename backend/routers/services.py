@@ -11,9 +11,7 @@ router = APIRouter(prefix="/services", tags=["services"])
 
 @router.get("", response_model=ServiceList)
 def list_services(db: DB, limit: int = 50, offset: int = 0) -> ServiceList:
-    q = db.query(Service).filter(
-        Service.published.is_(True), Service.archived_at.is_(None)
-    )
+    q = db.query(Service).filter(Service.published.is_(True), Service.archived_at.is_(None))
     total = q.count()
     items = q.order_by(Service.order_index.asc()).offset(offset).limit(limit).all()
     page = (offset // limit) + 1 if limit else 1
