@@ -6,7 +6,7 @@ import { Seo } from '@/lib/seo';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea, Select } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
-import { Spinner } from '@/components/ui/Spinner';
+import { SkeletonGrid } from '@/components/ui/State';
 import { useAdminPosts } from '@/features/posts/hooks';
 import {
   adminCreatePost,
@@ -137,7 +137,7 @@ export default function PostsAdmin() {
       {form ? (
         <Card className="mt-6">
           <form onSubmit={onSubmit} className="space-y-4">
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-lead font-semibold">
               {form.id ? 'Editar conteúdo' : 'Novo conteúdo'}
             </h2>
             <Input
@@ -183,7 +183,7 @@ export default function PostsAdmin() {
               onChange={(e) => setForm({ ...form, coverUrl: e.target.value })}
             />
             {err ? (
-              <p className="text-sm text-red-600" role="alert">
+              <p className="text-smallall text-danger" role="alert">
                 {err}
               </p>
             ) : null}
@@ -200,12 +200,12 @@ export default function PostsAdmin() {
       ) : null}
 
       {isLoading ? (
-        <Spinner />
+        <SkeletonGrid count={1} />
       ) : (
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-small">
             <thead>
-              <tr className="border-b border-border text-left text-mute">
+              <tr className="border-b border-line text-left text-muted">
                 <th className="py-2 pr-4">Título</th>
                 <th className="py-2 pr-4 hidden md:table-cell">Categoria</th>
                 <th className="py-2 pr-4">Status</th>
@@ -214,14 +214,14 @@ export default function PostsAdmin() {
             </thead>
             <tbody>
               {data?.map((p) => (
-                <tr key={p.id} className="border-b border-border last:border-0">
+                <tr key={p.id} className="border-b border-line last:border-0">
                   <td className="py-2 pr-4 font-medium text-ink">{p.title}</td>
-                  <td className="py-2 pr-4 text-mute hidden md:table-cell">{p.category}</td>
+                  <td className="py-2 pr-4 text-muted hidden md:table-cell">{p.category}</td>
                   <td className="py-2 pr-4">
                     {p.publishedAt ? (
-                      <span className="text-emerald-600">Publicado</span>
+                      <span className="text-accent-text">Publicado</span>
                     ) : (
-                      <span className="text-mute">Rascunho</span>
+                      <span className="text-muted">Rascunho</span>
                     )}
                   </td>
                   <td className="py-2 pr-4 text-right">
@@ -251,7 +251,7 @@ export default function PostsAdmin() {
               ))}
               {data && data.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-6 text-center text-mute">
+                  <td colSpan={4} className="py-6 text-center text-muted">
                     Nenhum conteúdo cadastrado.
                   </td>
                 </tr>

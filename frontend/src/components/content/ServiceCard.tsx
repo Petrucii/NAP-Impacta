@@ -6,10 +6,11 @@ import {
   Compass,
   BookOpen,
   Users,
-  ArrowRight,
+  ArrowUpRight,
   type LucideIcon,
 } from 'lucide-react';
 import type { Service } from '@/types/api';
+import { cardLinkClass } from '@/components/ui/Card';
 
 const ICONS: Record<string, LucideIcon> = {
   'heart-handshake': HeartHandshake,
@@ -20,21 +21,27 @@ const ICONS: Record<string, LucideIcon> = {
   users: Users,
 };
 
-export function ServiceCard({ service }: { service: Service }) {
+export function ServiceCard({ service, index }: { service: Service; index?: number }) {
   const Icon = ICONS[service.icon] ?? HeartHandshake;
   return (
-    <Link
-      to={`/servicos/${service.slug}`}
-      className="group block rounded-card border border-border bg-surface p-6 shadow-soft transition hover:border-accent hover:shadow-md no-underline"
-    >
-      <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200">
-        <Icon size={20} aria-hidden="true" />
+    <Link to={`/servicos/${service.slug}`} className={cardLinkClass}>
+      <div className="flex items-start justify-between">
+        <Icon size={24} aria-hidden="true" className="text-ink" />
+        {index !== undefined ? (
+          <span className="text-caption text-muted" aria-hidden="true">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+        ) : null}
       </div>
-      <h3 className="text-lg font-semibold text-ink">{service.title}</h3>
-      <p className="mt-2 text-sm text-mute leading-relaxed">{service.summary}</p>
-      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent">
+      <h3 className="mt-8">{service.title}</h3>
+      <p className="mt-2 flex-1 text-small text-muted">{service.summary}</p>
+      <span className="mt-6 inline-flex items-center gap-1 text-small font-medium text-ink">
         Saber mais
-        <ArrowRight size={14} aria-hidden="true" className="transition group-hover:translate-x-0.5" />
+        <ArrowUpRight
+          size={16}
+          aria-hidden="true"
+          className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+        />
       </span>
     </Link>
   );

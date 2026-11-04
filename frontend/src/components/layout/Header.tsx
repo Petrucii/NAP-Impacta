@@ -1,7 +1,9 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { Logo } from './Logo';
+import { ButtonLink } from '@/components/ui/Button';
 
 const NAV = [
   { to: '/', label: 'Início' },
@@ -12,41 +14,38 @@ const NAV = [
   { to: '/contato', label: 'Contato' },
 ];
 
+const linkClass = ({ isActive }: { isActive: boolean }) =>
+  cn(
+    'py-2 text-small no-underline transition-colors',
+    isActive
+      ? 'font-medium text-ink underline decoration-accent decoration-2 underline-offset-8'
+      : 'text-muted hover:text-ink active:text-muted',
+  );
+
 export function Header() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-surface/90 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-line bg-canvas">
       <div className="container-page flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-semibold text-lg no-underline text-ink">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded bg-accent text-accent-ink text-sm font-bold">
-            NAP
-          </span>
-          <span>NAP Impacta</span>
-        </Link>
+        <Logo />
 
-        <nav className="hidden md:flex items-center gap-6" aria-label="Principal">
+        <nav className="hidden items-center gap-6 lg:flex" aria-label="Principal">
           {NAV.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              end={n.to === '/'}
-              className={({ isActive }) =>
-                cn(
-                  'text-sm no-underline transition hover:text-accent',
-                  isActive ? 'text-accent font-semibold' : 'text-ink',
-                )
-              }
-            >
+            <NavLink key={n.to} to={n.to} end={n.to === '/'} className={linkClass}>
               {n.label}
             </NavLink>
           ))}
+          <ButtonLink to="/contato?topic=Agendar%20atendimento" size="sm">
+            Agendar atendimento
+          </ButtonLink>
         </nav>
 
         <button
           type="button"
-          className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-card border border-border"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-ui border border-field text-ink transition-colors hover:border-ink hover:bg-surface active:bg-line lg:hidden"
           aria-label={open ? 'Fechar menu' : 'Abrir menu'}
           aria-expanded={open}
+          aria-controls="menu-mobile"
           onClick={() => setOpen((v) => !v)}
         >
           {open ? <X aria-hidden="true" size={20} /> : <Menu aria-hidden="true" size={20} />}
@@ -54,11 +53,8 @@ export function Header() {
       </div>
 
       {open ? (
-        <nav
-          className="md:hidden border-t border-border bg-surface"
-          aria-label="Principal (móvel)"
-        >
-          <ul className="container-page py-3 space-y-1">
+        <nav id="menu-mobile" className="border-t border-line bg-canvas lg:hidden" aria-label="Principal (móvel)">
+          <ul className="container-page space-y-1 py-4">
             {NAV.map((n) => (
               <li key={n.to}>
                 <NavLink
@@ -67,8 +63,8 @@ export function Header() {
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      'block rounded px-3 py-2.5 text-sm no-underline',
-                      isActive ? 'bg-brand-50 text-brand-700 font-semibold' : 'text-ink hover:bg-surface-2',
+                      'block rounded-ui px-4 py-3 text-body no-underline transition-colors',
+                      isActive ? 'bg-surface font-medium text-ink' : 'text-muted hover:bg-surface hover:text-ink',
                     )
                   }
                 >
@@ -76,6 +72,15 @@ export function Header() {
                 </NavLink>
               </li>
             ))}
+            <li className="pt-4">
+              <ButtonLink
+                to="/contato?topic=Agendar%20atendimento"
+                className="w-full"
+                onClick={() => setOpen(false)}
+              >
+                Agendar atendimento
+              </ButtonLink>
+            </li>
           </ul>
         </nav>
       ) : null}

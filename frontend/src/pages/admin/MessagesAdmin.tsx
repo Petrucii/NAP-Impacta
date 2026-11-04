@@ -1,25 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, Mail, X } from 'lucide-react';
 
 import { Seo } from '@/lib/seo';
-import { Spinner } from '@/components/ui/Spinner';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { Button, buttonStyles } from '@/components/ui/Button';
+import { cardLinkClass } from '@/components/ui/Card';
+import { DataState } from '@/components/ui/State';
+import { FilterTabs } from '@/components/ui/FilterTabs';
 import { adminHandleMessage, adminListMessages } from '@/features/contact/api';
 import type { ContactMessage } from '@/types/api';
 
+type Filter = 'all' | 'unhandled' | 'handled';
+
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: 'unhandled', label: 'Não lidas' },
+  { value: 'all', label: 'Todas' },
+  { value: 'handled', label: 'Tratadas' },
+];
+
+const PAGE_LIMIT = 50;
+
 export default function MessagesAdmin() {
-  const [filter, setFilter] = useState<'all' | 'unhandled' | 'handled'>('unhandled');
+  const [filter, setFilter] = useState<Filter>('unhandled');
   const [open, setOpen] = useState<ContactMessage | null>(null);
   const qc = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin', 'messages', filter],
     queryFn: () =>
       adminListMessages({
         handled: filter === 'all' ? undefined : filter === 'handled',
-        limit: 50,
+        limit: PAGE_LIMIT,
       }),
   });
 
@@ -32,103 +43,98 @@ export default function MessagesAdmin() {
     },
   });
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(null);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
   return (
     <div>
       <Seo title="Admin — Mensagens" />
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <h1 className="text-ink">Mensagens</h1>
-        <div className="flex gap-2 text-sm" role="tablist" aria-label="Filtrar">
-          {(['unhandled', 'all', 'handled'] as const).map((v) => (
-            <button
-              key={v}
-              role="tab"
-              aria-selected={filter === v}
-              onClick={() => setFilter(v)}
-              className={
-                filter === v
-                  ? 'rounded-full border border-accent bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200 px-3 py-1'
-                  : 'rounded-full border border-border text-mute px-3 py-1 hover:bg-surface'
-              }
-            >
-              {v === 'unhandled' ? 'Não lidas' : v === 'all' ? 'Todas' : 'Tratadas'}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-title md:text-title">Mensagens</h1>
+        <FilterTabs label="Filtrar" options={FILTERS} value={filter} onChange={setFilter} />
       </div>
 
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <ul className="mt-6 space-y-3">
-          {data?.items.map((m) => (
-            <li key={m.id}>
-              <Card className="flex items-start justify-between gap-4">
+      <div className="mt-8">
+        <DataState
+          isLoading={isLoading}
+          isError={isError}
+          isEmpty={!data || data.items.length === 0}
+          onRetry={() => refetch()}
+          skeletonCount={2}
+          empty={{ title: 'Nenhuma mensagem neste filtro' }}
+        >
+          <ul className="space-y-4">
+            {data?.items.map((m) => (
+              <li key={m.id}>
                 <button
+                  type="button"
                   onClick={() => setOpen(m)}
-                  className="text-left flex-1 min-w-0"
+                  className={`${cardLinkClass} w-full text-left`}
                 >
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex items-center gap-2 text-small">
                     <span className="font-semibold text-ink">{m.name}</span>
-                    <span className="text-mute">·</span>
-                    <span className="text-mute truncate">{m.topic}</span>
+                    <span className="text-muted">·</span>
+                    <span className="truncate text-muted">{m.topic}</span>
                     {m.handledAt ? (
-                      <span className="ml-auto inline-flex items-center gap-1 text-xs text-emerald-600">
+                      <span className="ml-auto inline-flex items-center gap-1 text-caption uppercase text-accent-text">
                         <CheckCircle size={14} aria-hidden="true" /> Tratada
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-1 text-sm text-mute line-clamp-2">{m.message}</p>
-                  <p className="mt-2 text-xs text-mute">
-                    {new Date(m.createdAt).toLocaleString('pt-BR')}
-                    {' · '}
-                    {m.email}
+                  <p className="mt-2 line-clamp-2 text-small text-muted">{m.message}</p>
+                  <p className="mt-3 text-caption text-muted">
+                    {new Date(m.createdAt).toLocaleString('pt-BR')} · {m.email}
                   </p>
                 </button>
-              </Card>
-            </li>
-          ))}
-          {data && data.items.length === 0 ? (
-            <p className="text-mute">Nenhuma mensagem neste filtro.</p>
-          ) : null}
-        </ul>
-      )}
+              </li>
+            ))}
+          </ul>
+        </DataState>
+      </div>
 
       {open ? (
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Mensagem"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setOpen(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
         >
-          <div
-            className="w-full max-w-lg rounded-card border border-border bg-surface p-6 shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between">
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Fechar mensagem"
+            onClick={() => setOpen(null)}
+            className="absolute inset-0 cursor-default bg-ink/50"
+          />
+          <div className="relative w-full max-w-lg rounded-ui border border-line bg-surface p-6">
+            <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="font-semibold text-ink">{open.name}</p>
-                <p className="text-sm text-mute">{open.topic}</p>
+                <p className="text-small text-muted">{open.topic}</p>
               </div>
               <button
+                type="button"
                 aria-label="Fechar"
                 onClick={() => setOpen(null)}
-                className="h-8 w-8 rounded hover:bg-surface-2"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-ui text-ink transition-colors hover:bg-line active:bg-line/70"
               >
-                <X size={18} aria-hidden="true" className="mx-auto" />
+                <X size={18} aria-hidden="true" />
               </button>
             </div>
 
-            <p className="mt-4 whitespace-pre-wrap text-sm text-ink">{open.message}</p>
-
-            <p className="mt-4 text-xs text-mute">
+            <p className="mt-6 whitespace-pre-wrap text-body text-ink">{open.message}</p>
+            <p className="mt-4 text-caption text-muted">
               {open.email} · {new Date(open.createdAt).toLocaleString('pt-BR')}
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-8 flex flex-wrap gap-3">
               <a
                 href={`mailto:${open.email}?subject=${encodeURIComponent(`Re: ${open.topic}`)}`}
-                className="inline-flex items-center gap-2 rounded-card bg-accent px-5 py-2.5 font-medium text-accent-ink no-underline"
+                className={buttonStyles()}
               >
                 <Mail size={16} aria-hidden="true" /> Responder
               </a>

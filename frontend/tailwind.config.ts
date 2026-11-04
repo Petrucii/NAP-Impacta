@@ -1,42 +1,47 @@
 import type { Config } from 'tailwindcss';
 
+/**
+ * Design system NAP — minimalismo editorial.
+ * Cores vêm de CSS vars (globals.css) para trocar claro/escuro sem `dark:`.
+ * Raio único: `rounded-ui`. Qualquer outro `rounded-*` NÃO existe de propósito.
+ */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
-  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
+    borderRadius: {
+      none: '0',
+      ui: '0.375rem',
+    },
     extend: {
       colors: {
-        brand: {
-          50: '#eef4ff',
-          100: '#dde7ff',
-          200: '#b9ceff',
-          300: '#8caeff',
-          400: '#5a8bff',
-          500: '#2f6dff',
-          600: '#1d53e6',
-          700: '#163fb3',
-          800: '#132f85',
-          900: '#101f52',
-        },
-        ink: 'rgb(var(--ink) / <alpha-value>)',
-        mute: 'rgb(var(--mute) / <alpha-value>)',
+        canvas: 'rgb(var(--canvas) / <alpha-value>)',
         surface: 'rgb(var(--surface) / <alpha-value>)',
-        'surface-2': 'rgb(var(--surface-2) / <alpha-value>)',
-        border: 'rgb(var(--border) / <alpha-value>)',
+        ink: 'rgb(var(--ink) / <alpha-value>)',
+        muted: 'rgb(var(--muted) / <alpha-value>)',
+        line: 'rgb(var(--line) / <alpha-value>)',
+        field: 'rgb(var(--field) / <alpha-value>)',
         accent: 'rgb(var(--accent) / <alpha-value>)',
-        'accent-ink': 'rgb(var(--accent-ink) / <alpha-value>)',
+        'accent-hover': 'rgb(var(--accent-hover) / <alpha-value>)',
+        'accent-active': 'rgb(var(--accent-active) / <alpha-value>)',
+        'accent-text': 'rgb(var(--accent-text) / <alpha-value>)',
+        danger: 'rgb(var(--danger) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
       },
-      borderRadius: {
-        card: '0.75rem',
-      },
-      boxShadow: {
-        soft: '0 1px 2px rgb(0 0 0 / 0.04), 0 2px 8px rgb(0 0 0 / 0.04)',
+      // Escala tipográfica rígida: caption · small · body · lead · title · heading · display
+      fontSize: {
+        caption: ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.08em', fontWeight: '500' }],
+        small: ['0.875rem', { lineHeight: '1.5rem' }],
+        body: ['1rem', { lineHeight: '1.75rem' }],
+        lead: ['1.25rem', { lineHeight: '2rem' }],
+        title: ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.01em', fontWeight: '600' }],
+        heading: ['2.25rem', { lineHeight: '2.5rem', letterSpacing: '-0.02em', fontWeight: '600' }],
+        display: ['3.5rem', { lineHeight: '1.05', letterSpacing: '-0.035em', fontWeight: '600' }],
       },
       maxWidth: {
         content: '72rem',
+        prose: '42rem',
       },
     },
   },

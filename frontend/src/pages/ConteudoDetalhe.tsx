@@ -3,58 +3,43 @@ import { ArrowLeft } from 'lucide-react';
 import { usePost } from '@/features/posts/hooks';
 import { Seo } from '@/lib/seo';
 import { Markdown } from '@/components/ui/Markdown';
-import { Spinner } from '@/components/ui/Spinner';
+import { SkeletonGrid } from '@/components/ui/State';
 import { Badge } from '@/components/ui/Badge';
+import { CATEGORY_LABEL, CATEGORY_TONE, formatDate } from '@/components/content/PostCard';
 import NotFound from './NotFound';
-
-const LABEL = { orientacao: 'Orientação', educativo: 'Educativo', aviso: 'Aviso' } as const;
-const TONE = { orientacao: 'brand', educativo: 'success', aviso: 'warn' } as const;
-
-function fmt(iso: string | null) {
-  if (!iso) return '';
-  try {
-    return new Date(iso).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-  } catch {
-    return '';
-  }
-}
 
 export default function ConteudoDetalhe() {
   const { slug } = useParams<{ slug: string }>();
   const { data, isLoading, isError } = usePost(slug);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <div className="container-page section"><SkeletonGrid count={1} /></div>;
   if (isError || !data) return <NotFound />;
 
   return (
-    <article className="container-page py-12 max-w-3xl">
+    <article className="container-page section">
       <Seo title={data.title} description={data.summary} />
 
-      <nav aria-label="Breadcrumb" className="mb-6 text-sm">
-        <Link to="/conteudos" className="text-mute hover:text-accent no-underline inline-flex items-center gap-1">
-          <ArrowLeft size={14} aria-hidden="true" /> Orientações
-        </Link>
-      </nav>
+      <Link to="/conteudos" className="link mb-8 inline-flex items-center gap-1 text-small">
+        <ArrowLeft size={16} aria-hidden="true" /> Orientações
+      </Link>
 
-      <div className="flex items-center gap-3 mb-4">
-        <Badge tone={TONE[data.category]}>{LABEL[data.category]}</Badge>
-        {data.publishedAt ? (
-          <time className="text-sm text-mute" dateTime={data.publishedAt}>
-            {fmt(data.publishedAt)}
-          </time>
-        ) : null}
-      </div>
+      <div className="max-w-prose">
+        <div className="mb-6 flex items-center gap-4">
+          <Badge tone={CATEGORY_TONE[data.category]}>{CATEGORY_LABEL[data.category]}</Badge>
+          {data.publishedAt ? (
+            <time className="text-small text-muted" dateTime={data.publishedAt}>
+              {formatDate(data.publishedAt, 'long')}
+            </time>
+          ) : null}
+        </div>
 
-      <h1 className="text-ink">{data.title}</h1>
-      <p className="mt-3 text-mute text-lg">{data.summary}</p>
-      <p className="mt-2 text-sm text-mute">Por {data.author}</p>
+        <h1>{data.title}</h1>
+        <p className="mt-6 text-lead text-muted">{data.summary}</p>
+        <p className="mt-4 text-small text-muted">Por {data.author}</p>
 
-      <div className="mt-8">
-        <Markdown>{data.bodyMd}</Markdown>
+        <div className="mt-12 border-t border-line pt-12">
+          <Markdown>{data.bodyMd}</Markdown>
+        </div>
       </div>
     </article>
   );

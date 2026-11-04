@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Star, CheckCircle2 } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { Seo } from '@/lib/seo';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { submitFeedback } from '@/features/contact/api';
@@ -38,28 +39,29 @@ export default function Feedback() {
 
   if (sent) {
     return (
-      <div className="container-page py-16 max-w-2xl">
+      <div className="container-page section">
         <Seo title="Obrigado pelo feedback" />
-        <div className="rounded-card border border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-800 p-8 text-center">
-          <CheckCircle2 className="mx-auto mb-3 text-emerald-600" size={40} aria-hidden="true" />
-          <h1 className="text-ink">Obrigado!</h1>
-          <p className="mt-3 text-mute">Seu feedback nos ajuda a melhorar o site do NAP.</p>
-        </div>
+        <PageHeader
+          eyebrow="Feedback"
+          title="Obrigado!"
+          description="Seu feedback nos ajuda a melhorar o site do NAP."
+        />
       </div>
     );
   }
 
   return (
-    <div className="container-page py-12 max-w-xl">
+    <div className="container-page section">
       <Seo title="Feedback sobre o site" />
-      <h1>Como foi sua experiência?</h1>
-      <p className="mt-2 text-mute">
-        Avalie o site e, se quiser, deixe um comentário. Totalmente anônimo.
-      </p>
+      <PageHeader
+        eyebrow="Feedback"
+        title="Como foi sua experiência?"
+        description="Avalie o site e, se quiser, deixe um comentário. Totalmente anônimo."
+      />
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-6">
+      <form onSubmit={onSubmit} className="mt-12 max-w-prose space-y-6">
         <div>
-          <span className="text-sm font-medium text-ink">Nota</span>
+          <span className="block text-small font-medium text-ink">Nota</span>
           <div className="mt-2 flex gap-2" role="radiogroup" aria-label="Nota de 1 a 5">
             {[1, 2, 3, 4, 5].map((n) => (
               <button
@@ -70,10 +72,10 @@ export default function Feedback() {
                 aria-label={`${n} estrela${n > 1 ? 's' : ''}`}
                 onClick={() => setRating(n)}
                 className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-card border transition',
+                  'flex h-12 w-12 items-center justify-center rounded-ui border transition-colors',
                   rating >= n
-                    ? 'border-amber-400 bg-amber-50 text-amber-500 dark:bg-amber-900/40'
-                    : 'border-border text-mute hover:bg-surface-2',
+                    ? 'border-ink bg-ink text-canvas'
+                    : 'border-field text-muted hover:border-ink hover:text-ink active:bg-line',
                 )}
               >
                 <Star size={20} aria-hidden="true" fill={rating >= n ? 'currentColor' : 'none'} />
@@ -91,7 +93,7 @@ export default function Feedback() {
         />
 
         {error ? (
-          <p className="text-sm text-red-600" role="alert">
+          <p className="text-small text-danger" role="alert">
             {error}
           </p>
         ) : null}

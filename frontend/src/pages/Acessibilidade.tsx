@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
 import { Seo } from '@/lib/seo';
 import { Markdown } from '@/components/ui/Markdown';
-import { Button } from '@/components/ui/Button';
+import { ButtonLink } from '@/components/ui/Button';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const BODY = `
 ## Compromisso
@@ -30,19 +30,17 @@ que a gente consiga melhorar.
 
 export default function Acessibilidade() {
   return (
-    <div className="container-page py-12 max-w-3xl">
+    <div className="container-page section">
       <Seo
         title="Acessibilidade"
         description="Declaração de acessibilidade do site do NAP Impacta."
       />
-      <h1>Acessibilidade</h1>
-      <div className="mt-6">
+      <PageHeader eyebrow="Acessibilidade" title="Declaração de acessibilidade" />
+      <div className="mt-12 max-w-prose">
         <Markdown>{BODY}</Markdown>
-      </div>
-      <div className="mt-8">
-        <Link to="/contato?topic=Acessibilidade">
-          <Button>Reportar barreira</Button>
-        </Link>
+        <ButtonLink to="/contato?topic=Acessibilidade" className="mt-12">
+          Reportar barreira
+        </ButtonLink>
       </div>
     </div>
   );

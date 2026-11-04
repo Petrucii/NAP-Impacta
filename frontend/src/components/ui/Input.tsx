@@ -1,4 +1,4 @@
-import { forwardRef, type InputHTMLAttributes, type TextareaHTMLAttributes, useId } from 'react';
+import { forwardRef, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes, useId } from 'react';
 import { cn } from '@/lib/cn';
 
 type FieldWrapProps = {
@@ -11,27 +11,25 @@ type FieldWrapProps = {
 };
 
 export function Field({ label, hint, error, required, htmlFor, children }: FieldWrapProps) {
-  const describedBy = [hint ? `${htmlFor}-hint` : null, error ? `${htmlFor}-err` : null]
-    .filter(Boolean)
-    .join(' ');
   return (
-    <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="text-sm font-medium text-ink">
+    <div className="space-y-2">
+      <label htmlFor={htmlFor} className="block text-small font-medium text-ink">
         {label}
-        {required ? <span className="text-red-600" aria-hidden="true"> *</span> : null}
+        {required ? (
+          <span className="text-muted" aria-hidden="true">
+            {' '}
+            *
+          </span>
+        ) : null}
       </label>
-      <div
-        data-described-by={describedBy || undefined}
-      >
-        {children}
-      </div>
+      {children}
       {hint && !error ? (
-        <p id={`${htmlFor}-hint`} className="text-xs text-mute">
+        <p id={`${htmlFor}-hint`} className="text-small text-muted">
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p id={`${htmlFor}-err`} className="text-xs text-red-600" role="alert">
+        <p id={`${htmlFor}-err`} className="text-small text-danger" role="alert">
           {error}
         </p>
       ) : null}
@@ -39,90 +37,61 @@ export function Field({ label, hint, error, required, htmlFor, children }: Field
   );
 }
 
-type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  label: string;
-  hint?: string;
-  error?: string;
-};
+const control =
+  'block w-full rounded-ui border bg-surface px-4 text-body text-ink transition-colors ' +
+  'placeholder:text-muted hover:border-ink disabled:cursor-not-allowed disabled:opacity-50';
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, hint, error, id, required, className, ...rest },
-  ref,
-) {
-  const auto = useId();
-  const inputId = id ?? auto;
-  return (
-    <Field label={label} hint={hint} error={error} required={required} htmlFor={inputId}>
-      <input
-        id={inputId}
-        ref={ref}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={
-          [hint ? `${inputId}-hint` : null, error ? `${inputId}-err` : null]
-            .filter(Boolean)
-            .join(' ') || undefined
-        }
-        required={required}
-        className={cn(
-          'block w-full rounded-card border bg-surface px-3.5 py-2.5 text-ink',
-          'placeholder:text-mute focus:outline-none focus:ring-2 focus:ring-accent',
-          error ? 'border-red-500' : 'border-border',
-          className,
-        )}
-        {...rest}
-      />
-    </Field>
-  );
-});
+function describedBy(id: string, hint?: string, error?: string) {
+  return [hint && !error ? `${id}-hint` : null, error ? `${id}-err` : null].filter(Boolean).join(' ') || undefined;
+}
 
-type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
-  label: string;
-  hint?: string;
-  error?: string;
-};
+type CommonProps = { label: string; hint?: string; error?: string };
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { label, hint, error, id, required, className, rows = 5, ...rest },
-  ref,
-) {
-  const auto = useId();
-  const inputId = id ?? auto;
-  return (
-    <Field label={label} hint={hint} error={error} required={required} htmlFor={inputId}>
-      <textarea
-        id={inputId}
-        ref={ref}
-        rows={rows}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={
-          [hint ? `${inputId}-hint` : null, error ? `${inputId}-err` : null]
-            .filter(Boolean)
-            .join(' ') || undefined
-        }
-        required={required}
-        className={cn(
-          'block w-full rounded-card border bg-surface px-3.5 py-2.5 text-ink',
-          'placeholder:text-mute focus:outline-none focus:ring-2 focus:ring-accent resize-y',
-          error ? 'border-red-500' : 'border-border',
-          className,
-        )}
-        {...rest}
-      />
-    </Field>
-  );
-});
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & CommonProps>(
+  function Input({ label, hint, error, id, required, className, ...rest }, ref) {
+    const auto = useId();
+    const inputId = id ?? auto;
+    return (
+      <Field label={label} hint={hint} error={error} required={required} htmlFor={inputId}>
+        <input
+          id={inputId}
+          ref={ref}
+          required={required}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy(inputId, hint, error)}
+          className={cn(control, 'h-12', error ? 'border-danger' : 'border-field', className)}
+          {...rest}
+        />
+      </Field>
+    );
+  },
+);
 
-type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
-  label: string;
-  hint?: string;
-  error?: string;
-  options: { value: string; label: string }[];
-};
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement> & CommonProps>(
+  function Textarea({ label, hint, error, id, required, className, rows = 5, ...rest }, ref) {
+    const auto = useId();
+    const inputId = id ?? auto;
+    return (
+      <Field label={label} hint={hint} error={error} required={required} htmlFor={inputId}>
+        <textarea
+          id={inputId}
+          ref={ref}
+          rows={rows}
+          required={required}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy(inputId, hint, error)}
+          className={cn(control, 'resize-y py-3', error ? 'border-danger' : 'border-field', className)}
+          {...rest}
+        />
+      </Field>
+    );
+  },
+);
 
-export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { label, hint, error, id, required, options, className, ...rest },
-  ref,
-) {
+export const Select = forwardRef<
+  HTMLSelectElement,
+  SelectHTMLAttributes<HTMLSelectElement> & CommonProps & { options: { value: string; label: string }[] }
+>(function Select({ label, hint, error, id, required, options, className, ...rest }, ref) {
   const auto = useId();
   const inputId = id ?? auto;
   return (
@@ -130,13 +99,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
       <select
         id={inputId}
         ref={ref}
+        required={required}
         aria-invalid={error ? true : undefined}
-        className={cn(
-          'block w-full rounded-card border bg-surface px-3.5 py-2.5 text-ink',
-          'focus:outline-none focus:ring-2 focus:ring-accent',
-          error ? 'border-red-500' : 'border-border',
-          className,
-        )}
+        aria-describedby={describedBy(inputId, hint, error)}
+        className={cn(control, 'h-12', error ? 'border-danger' : 'border-field', className)}
         {...rest}
       >
         {options.map((o) => (

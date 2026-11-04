@@ -1,24 +1,24 @@
 import { Link } from 'react-router-dom';
 import type { Post } from '@/types/api';
 import { Badge } from '@/components/ui/Badge';
+import { cardLinkClass } from '@/components/ui/Card';
 
-const CATEGORY_LABEL: Record<Post['category'], string> = {
+export const CATEGORY_LABEL: Record<Post['category'], string> = {
   orientacao: 'Orientação',
   educativo: 'Educativo',
   aviso: 'Aviso',
 };
 
-const CATEGORY_TONE: Record<Post['category'], 'brand' | 'success' | 'warn'> = {
-  orientacao: 'brand',
-  educativo: 'success',
-  aviso: 'warn',
+export const CATEGORY_TONE: Record<Post['category'], 'accent' | 'neutral' | 'solid'> = {
+  orientacao: 'accent',
+  educativo: 'neutral',
+  aviso: 'solid',
 };
 
-function formatDate(iso: string | null) {
+export function formatDate(iso: string | null, month: 'short' | 'long' = 'short') {
   if (!iso) return '';
   try {
-    const d = new Date(iso);
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month, year: 'numeric' });
   } catch {
     return '';
   }
@@ -26,22 +26,19 @@ function formatDate(iso: string | null) {
 
 export function PostCard({ post }: { post: Post }) {
   return (
-    <Link
-      to={`/conteudos/${post.slug}`}
-      className="group block rounded-card border border-border bg-surface p-5 shadow-soft transition hover:border-accent hover:shadow-md no-underline"
-    >
-      <div className="mb-3 flex items-center gap-2">
+    <Link to={`/conteudos/${post.slug}`} className={cardLinkClass}>
+      <div className="flex items-center justify-between gap-4">
         <Badge tone={CATEGORY_TONE[post.category]}>{CATEGORY_LABEL[post.category]}</Badge>
         {post.publishedAt ? (
-          <time className="text-xs text-mute" dateTime={post.publishedAt}>
+          <time className="text-caption text-muted" dateTime={post.publishedAt}>
             {formatDate(post.publishedAt)}
           </time>
         ) : null}
       </div>
-      <h3 className="text-lg font-semibold text-ink group-hover:text-accent transition">
+      <h3 className="mt-8 group-hover:underline group-hover:decoration-accent group-hover:decoration-2 group-hover:underline-offset-4">
         {post.title}
       </h3>
-      <p className="mt-2 text-sm text-mute leading-relaxed line-clamp-3">{post.summary}</p>
+      <p className="mt-2 line-clamp-3 flex-1 text-small text-muted">{post.summary}</p>
     </Link>
   );
 }

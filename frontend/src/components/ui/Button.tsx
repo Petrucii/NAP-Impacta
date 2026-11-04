@@ -1,53 +1,69 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
+import { Link, type LinkProps } from 'react-router-dom';
 import { cn } from '@/lib/cn';
+import { Bars } from './Spinner';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
 
-type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
+const base =
+  'inline-flex select-none items-center justify-center gap-2 rounded-ui font-medium no-underline ' +
+  'transition-colors disabled:pointer-events-none disabled:opacity-50';
+
+const variants: Record<Variant, string> = {
+  primary: 'bg-accent text-ink hover:bg-accent-hover active:bg-accent-active',
+  secondary:
+    'border border-field bg-transparent text-ink hover:border-ink hover:bg-surface active:bg-line',
+  ghost: 'bg-transparent text-ink hover:bg-line active:bg-line/70',
+  danger:
+    'border border-danger bg-transparent text-danger hover:bg-danger hover:text-canvas active:opacity-90',
+};
+
+const sizes: Record<Size, string> = {
+  sm: 'h-10 px-4 text-small',
+  md: 'h-12 px-6 text-body',
+  lg: 'h-14 px-8 text-body',
+};
+
+export function buttonStyles({
+  variant = 'primary',
+  size = 'md',
+  className,
+}: {
+  variant?: Variant;
+  size?: Size;
+  className?: string;
+} = {}) {
+  return cn(base, variants[variant], sizes[size], className);
+}
+
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   size?: Size;
   isLoading?: boolean;
 };
 
-const variantClasses: Record<Variant, string> = {
-  primary:
-    'bg-accent text-accent-ink hover:brightness-110 active:brightness-95 disabled:opacity-50',
-  secondary:
-    'bg-surface-2 text-ink border border-border hover:bg-border/40 disabled:opacity-50',
-  ghost: 'bg-transparent text-ink hover:bg-surface-2 disabled:opacity-50',
-  danger:
-    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:opacity-50',
-};
-
-const sizeClasses: Record<Size, string> = {
-  sm: 'h-9 px-3 text-sm',
-  md: 'h-11 px-5 text-base',
-  lg: 'h-12 px-6 text-base',
-};
-
-export const Button = forwardRef<HTMLButtonElement, Props>(function Button(
-  { className, variant = 'primary', size = 'md', isLoading, children, disabled, ...rest },
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { className, variant, size, isLoading, children, disabled, ...rest },
   ref,
 ) {
   return (
     <button
       ref={ref}
       disabled={disabled || isLoading}
-      className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-card font-medium transition',
-        'focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
-        'min-w-[44px]',
-        variantClasses[variant],
-        sizeClasses[size],
-        className,
-      )}
+      aria-busy={isLoading || undefined}
+      className={buttonStyles({ variant, size, className })}
       {...rest}
     >
-      {isLoading ? (
-        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
-      ) : null}
+      {isLoading ? <Bars /> : null}
       {children}
     </button>
   );
 });
+
+type ButtonLinkProps = LinkProps & { variant?: Variant; size?: Size };
+
+/** Link com aparência de botão (evita <button> dentro de <a>). */
+export function ButtonLink({ variant, size, className, ...rest }: ButtonLinkProps) {
+  return <Link className={buttonStyles({ variant, size, className })} {...rest} />;
+}

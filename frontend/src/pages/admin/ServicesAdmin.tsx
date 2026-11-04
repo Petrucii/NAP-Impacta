@@ -6,7 +6,7 @@ import { Seo } from '@/lib/seo';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
-import { Spinner } from '@/components/ui/Spinner';
+import { SkeletonGrid } from '@/components/ui/State';
 import { useAdminServices } from '@/features/services/hooks';
 import {
   adminCreateService,
@@ -110,7 +110,7 @@ export default function ServicesAdmin() {
       {form ? (
         <Card className="mt-6">
           <form onSubmit={onSubmit} className="space-y-4">
-            <h2 className="text-lg font-semibold">{form.id ? 'Editar serviço' : 'Novo serviço'}</h2>
+            <h2 className="text-lead font-semibold">{form.id ? 'Editar serviço' : 'Novo serviço'}</h2>
             <Input
               label="Título"
               required
@@ -151,7 +151,7 @@ export default function ServicesAdmin() {
                 onChange={(e) => setForm({ ...form, orderIndex: Number(e.target.value) })}
               />
             </div>
-            <label className="flex items-center gap-2 text-sm">
+            <label className="flex items-center gap-2 text-small">
               <input
                 type="checkbox"
                 checked={form.published}
@@ -160,7 +160,7 @@ export default function ServicesAdmin() {
               Publicado
             </label>
             {err ? (
-              <p className="text-sm text-red-600" role="alert">
+              <p className="text-smallall text-danger" role="alert">
                 {err}
               </p>
             ) : null}
@@ -177,12 +177,12 @@ export default function ServicesAdmin() {
       ) : null}
 
       {isLoading ? (
-        <Spinner />
+        <SkeletonGrid count={1} />
       ) : (
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-small">
             <thead>
-              <tr className="border-b border-border text-left text-mute">
+              <tr className="border-b border-line text-left text-muted">
                 <th className="py-2 pr-4">Título</th>
                 <th className="py-2 pr-4 hidden md:table-cell">Slug</th>
                 <th className="py-2 pr-4">Status</th>
@@ -192,14 +192,14 @@ export default function ServicesAdmin() {
             </thead>
             <tbody>
               {data?.map((s) => (
-                <tr key={s.id} className="border-b border-border last:border-0">
+                <tr key={s.id} className="border-b border-line last:border-0">
                   <td className="py-2 pr-4 font-medium text-ink">{s.title}</td>
-                  <td className="py-2 pr-4 text-mute hidden md:table-cell"><code>{s.slug}</code></td>
+                  <td className="py-2 pr-4 text-muted hidden md:table-cell"><code>{s.slug}</code></td>
                   <td className="py-2 pr-4">
                     {s.published ? (
-                      <span className="text-emerald-600">Publicado</span>
+                      <span className="text-accent-text">Publicado</span>
                     ) : (
-                      <span className="text-mute">Rascunho</span>
+                      <span className="text-muted">Rascunho</span>
                     )}
                   </td>
                   <td className="py-2 pr-4">{s.orderIndex}</td>
@@ -223,7 +223,7 @@ export default function ServicesAdmin() {
               ))}
               {data && data.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-6 text-center text-mute">
+                  <td colSpan={5} className="py-6 text-center text-muted">
                     Nenhum serviço cadastrado.
                   </td>
                 </tr>

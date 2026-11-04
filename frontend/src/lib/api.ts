@@ -1,10 +1,13 @@
 import axios, { AxiosError } from 'axios';
 
+/** Render free dorme após inatividade: a 1ª requisição pode levar ~1 min. */
+const REQUEST_TIMEOUT_MS = 60_000;
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api';
 
 export const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 10_000,
+  timeout: REQUEST_TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
   },

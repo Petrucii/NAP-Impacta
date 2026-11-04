@@ -9,8 +9,14 @@ export function Markdown({ children }: Props) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          a: ({ node: _node, ...rest }) => (
-            <a {...rest} target={rest.href?.startsWith('http') ? '_blank' : undefined} rel="noreferrer" />
+          a: ({ node: _node, children, ...rest }) => (
+            <a
+              {...rest}
+              target={rest.href?.startsWith('http') ? '_blank' : undefined}
+              rel="noreferrer"
+            >
+              {children}
+            </a>
           ),
         }}
       >

@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 import { Seo } from '@/lib/seo';
 import { listFaq } from '@/features/faq/api';
-import { Spinner } from '@/components/ui/Spinner';
+import { DataState } from '@/components/ui/State';
 import { Input } from '@/components/ui/Input';
 import { Markdown } from '@/components/ui/Markdown';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const CATEGORY_LABEL: Record<string, string> = {
   geral: 'Geral',
@@ -14,11 +16,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 export default function Faq() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['faq'],
-    queryFn: listFaq,
-  });
-
+  const { data, isLoading, isError, refetch } = useQuery({ queryKey: ['faq'], queryFn: listFaq });
   const [q, setQ] = useState('');
 
   const grouped = useMemo(() => {
@@ -26,9 +24,7 @@ export default function Faq() {
     const query = q.trim().toLowerCase();
     const filtered = query
       ? data.filter(
-          (f) =>
-            f.question.toLowerCase().includes(query) ||
-            f.answerMd.toLowerCase().includes(query),
+          (f) => f.question.toLowerCase().includes(query) || f.answerMd.toLowerCase().includes(query),
         )
       : data;
     return filtered.reduce<Record<string, typeof data>>((acc, item) => {
@@ -37,55 +33,66 @@ export default function Faq() {
     }, {});
   }, [data, q]);
 
+  const noResults = Object.keys(grouped).length === 0;
+
   return (
-    <div className="container-page py-12 max-w-3xl">
+    <div className="container-page section">
       <Seo
         title="Perguntas frequentes"
         description="Dúvidas comuns sobre o Núcleo de Apoio Psicopedagógico — NAP Impacta."
       />
-      <h1>Perguntas frequentes</h1>
-      <p className="mt-2 text-mute">Dúvidas mais comuns sobre o atendimento e os serviços.</p>
+      <PageHeader
+        eyebrow="FAQ"
+        title="Perguntas frequentes"
+        description="Dúvidas mais comuns sobre o atendimento e os serviços."
+      />
 
-      <div className="mt-6">
+      <div className="mt-12 max-w-prose space-y-12">
         <Input
           label="Buscar"
+          type="search"
           placeholder="Digite palavras-chave…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-      </div>
 
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <div className="mt-8 space-y-10">
-          {Object.entries(grouped).map(([cat, items]) => (
-            <section key={cat}>
-              <h2 className="text-lg font-semibold text-mute uppercase tracking-wide">
-                {CATEGORY_LABEL[cat] ?? cat}
-              </h2>
-              <div className="mt-3 divide-y divide-border rounded-card border border-border bg-surface">
-                {items.map((item) => (
-                  <details key={item.id} className="group p-4">
-                    <summary className="flex cursor-pointer items-center justify-between gap-4 text-ink font-medium">
-                      <span>{item.question}</span>
-                      <span className="text-mute transition group-open:rotate-180" aria-hidden="true">
-                        ▾
-                      </span>
-                    </summary>
-                    <div className="mt-3">
-                      <Markdown>{item.answerMd}</Markdown>
-                    </div>
-                  </details>
-                ))}
-              </div>
-            </section>
-          ))}
-          {Object.keys(grouped).length === 0 ? (
-            <p className="text-mute">Nenhum resultado para "{q}".</p>
-          ) : null}
-        </div>
-      )}
+        <DataState
+          isLoading={isLoading}
+          isError={isError}
+          isEmpty={noResults}
+          onRetry={() => refetch()}
+          skeletonCount={2}
+          empty={{
+            title: q ? `Nenhum resultado para “${q}”` : 'Nenhuma pergunta cadastrada',
+            description: q ? 'Tente outras palavras ou fale direto com a equipe.' : undefined,
+          }}
+        >
+          <div className="space-y-12">
+            {Object.entries(grouped).map(([cat, items]) => (
+              <section key={cat}>
+                <h2 className="eyebrow mb-4">{CATEGORY_LABEL[cat] ?? cat}</h2>
+                <div className="divide-y divide-line rounded-ui border border-line bg-surface">
+                  {items.map((item) => (
+                    <details key={item.id} className="group">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4 font-medium text-ink transition-colors hover:bg-canvas">
+                        <span>{item.question}</span>
+                        <ChevronDown
+                          size={16}
+                          aria-hidden="true"
+                          className="shrink-0 text-muted transition-transform group-open:rotate-180"
+                        />
+                      </summary>
+                      <div className="px-4 pb-4">
+                        <Markdown>{item.answerMd}</Markdown>
+                      </div>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </DataState>
+      </div>
     </div>
   );
 }

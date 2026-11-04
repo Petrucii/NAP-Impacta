@@ -5,6 +5,8 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Seo } from '@/lib/seo';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Logo } from '@/components/layout/Logo';
 import { useAuth } from '@/features/auth/AuthContext';
 
 type FormData = { email: string; password: string };
@@ -37,20 +39,13 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-2 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-canvas p-4">
       <Seo title="Login admin" />
-      <div className="w-full max-w-sm rounded-card border border-border bg-surface p-6 shadow-soft">
-        <div className="mb-6 flex items-center gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded bg-accent text-accent-ink font-bold">
-            NAP
-          </span>
-          <div>
-            <p className="font-semibold">Admin NAP</p>
-            <p className="text-xs text-mute">Acesso restrito à equipe</p>
-          </div>
-        </div>
+      <Card className="w-full max-w-sm">
+        <Logo />
+        <p className="eyebrow mb-6 mt-6">Acesso restrito à equipe</p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Input
             label="E-mail"
             type="email"
@@ -68,7 +63,7 @@ export default function AdminLogin() {
             {...register('password', { required: true })}
           />
           {err ? (
-            <p className="text-sm text-red-600" role="alert">
+            <p className="text-small text-danger" role="alert">
               {err}
             </p>
           ) : null}
@@ -76,7 +71,7 @@ export default function AdminLogin() {
             Entrar
           </Button>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

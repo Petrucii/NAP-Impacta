@@ -2,107 +2,146 @@
 @tailwind components;
 @tailwind utilities;
 
-/* -------- Design tokens (light / dark) -------- */
+/* ---------- Tokens (RGB em triplas, para uso com opacidade) ---------- */
 :root {
-  --ink: 17 24 39;          /* slate-900 */
-  --mute: 100 116 139;      /* slate-500 */
+  color-scheme: light;
+  --canvas: 247 247 245;        /* #F7F7F5 off-white */
   --surface: 255 255 255;
-  --surface-2: 248 250 252; /* slate-50 */
-  --border: 226 232 240;    /* slate-200 */
-  --accent: 29 83 230;      /* brand-600 */
-  --accent-ink: 255 255 255;
+  --ink: 24 24 27;              /* zinc-900 (nunca preto puro) */
+  --muted: 82 82 91;            /* zinc-600  · 7.2:1 no canvas */
+  --line: 228 228 231;          /* zinc-200  · bordas de cards */
+  --field: 113 113 122;         /* zinc-500  · bordas de campos (>=3:1) */
+  --accent: 0 205 255;          /* ciano da logo #00CDFF */
+  --accent-hover: 0 184 230;
+  --accent-active: 0 160 201;
+  --accent-text: 3 105 161;     /* mesmo matiz, escuro p/ texto · 5.5:1 */
+  --danger: 185 28 28;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --ink: 241 245 249;
-    --mute: 148 163 184;
-    --surface: 15 23 42;
-    --surface-2: 2 6 23;
-    --border: 51 65 85;
-    --accent: 140 174 255;
-    --accent-ink: 15 23 42;
+    color-scheme: dark;
+    --canvas: 9 9 11;           /* #09090B */
+    --surface: 24 24 27;
+    --ink: 244 244 245;
+    --muted: 161 161 170;       /* 7.8:1 */
+    --line: 39 39 42;
+    --field: 113 113 122;
+    --accent-text: 56 189 248;  /* 9.3:1 */
+    --danger: 248 113 113;
   }
 }
 
 :root[data-theme='dark'] {
-  --ink: 241 245 249;
-  --mute: 148 163 184;
-  --surface: 15 23 42;
-  --surface-2: 2 6 23;
-  --border: 51 65 85;
-  --accent: 140 174 255;
-  --accent-ink: 15 23 42;
+  color-scheme: dark;
+  --canvas: 9 9 11;
+  --surface: 24 24 27;
+  --ink: 244 244 245;
+  --muted: 161 161 170;
+  --line: 39 39 42;
+  --field: 113 113 122;
+  --accent-text: 56 189 248;
+  --danger: 248 113 113;
 }
 
+/* ---------- Base ---------- */
 @layer base {
   html {
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-surface text-ink font-sans antialiased;
+    @apply bg-canvas font-sans text-body text-ink antialiased;
     min-height: 100vh;
   }
-  :focus-visible {
-    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface rounded;
-  }
   h1 {
-    @apply text-3xl md:text-4xl font-bold tracking-tight;
+    @apply text-heading text-ink md:text-display;
   }
   h2 {
-    @apply text-2xl md:text-3xl font-semibold tracking-tight;
+    @apply text-title text-ink;
   }
   h3 {
-    @apply text-xl md:text-2xl font-semibold;
+    @apply text-lead font-semibold text-ink;
   }
-  a {
-    @apply underline-offset-4;
+  ::selection {
+    background: rgb(var(--accent) / 0.35);
+  }
+  /* Foco: anel em tom de texto, visível em canvas, cards e sobre o ciano */
+  :focus-visible {
+    outline: 2px solid rgb(var(--ink));
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
 @layer components {
   .container-page {
-    @apply mx-auto w-full max-w-content px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-content px-6 md:px-8;
   }
-  .prose-nap h1 {
-    @apply mt-0 mb-4;
+  .section {
+    @apply py-16 md:py-24;
+  }
+  /* Rótulo pequeno em caixa-alta (eyebrow) */
+  .eyebrow {
+    @apply text-caption uppercase text-muted;
+  }
+  /* Link de texto */
+  .link {
+    @apply text-accent-text underline underline-offset-4 transition-colors hover:text-ink active:text-muted;
+  }
+
+  /* Markdown renderizado */
+  .prose-nap {
+    @apply max-w-prose;
   }
   .prose-nap h2 {
-    @apply mt-8 mb-3;
+    @apply mb-4 mt-12 text-title;
   }
   .prose-nap h3 {
-    @apply mt-6 mb-2;
+    @apply mb-2 mt-8;
   }
   .prose-nap p {
-    @apply my-3 leading-relaxed text-ink;
+    @apply my-4 text-body text-ink;
   }
   .prose-nap ul {
-    @apply list-disc pl-6 my-3 space-y-1;
+    @apply my-4 list-disc space-y-2 pl-6 marker:text-muted;
   }
   .prose-nap ol {
-    @apply list-decimal pl-6 my-3 space-y-1;
+    @apply my-4 list-decimal space-y-2 pl-6 marker:text-muted;
   }
   .prose-nap a {
-    @apply text-accent underline;
+    @apply link;
   }
   .prose-nap code {
-    @apply bg-surface-2 px-1 py-0.5 rounded text-sm;
+    @apply rounded-ui bg-line px-1.5 py-0.5 text-small;
   }
   .prose-nap blockquote {
-    @apply border-l-4 border-border pl-4 my-4 italic text-mute;
+    @apply my-6 border-l-2 border-accent pl-4 text-muted;
+  }
+  .prose-nap > :first-child {
+    @apply mt-0;
   }
 }
 
-/* Skip link — fica visível só no foco */
+/* Skip link — visível só no foco */
 .skip-link {
   position: absolute;
   left: -9999px;
   top: 0;
-  padding: 0.75rem 1rem;
-  background: rgb(var(--accent));
-  color: rgb(var(--accent-ink));
   z-index: 100;
-  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  background: rgb(var(--accent));
+  color: rgb(var(--ink));
   font-weight: 600;
 }
 .skip-link:focus {
